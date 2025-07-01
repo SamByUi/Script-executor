@@ -1,0 +1,135 @@
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.Name = "ScriptExecutor"
+
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 340, 0, 320)
+main.Position = UDim2.new(0.5, -170, 0.5, -160)
+main.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+main.BorderSizePixel = 0
+main.Parent = gui
+main.Active = true
+main.Draggable = true
+
+local titleBar = Instance.new("TextLabel", main)
+titleBar.Size = UDim2.new(1, 0, 0, 32)
+titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+titleBar.Text = "Sam执行者"
+titleBar.TextColor3 = Color3.new(1,1,1)
+titleBar.Font = Enum.Font.SourceSansBold
+titleBar.TextSize = 22
+titleBar.BorderSizePixel = 0
+
+local closeBtn = Instance.new("TextButton", main)
+closeBtn.Size = UDim2.new(0, 32, 0, 32)
+closeBtn.Position = UDim2.new(1, -32, 0, 0)
+closeBtn.Text = "×"
+closeBtn.TextColor3 = Color3.new(1,0.4,0.4)
+closeBtn.Font = Enum.Font.SourceSansBold
+closeBtn.TextSize = 28
+closeBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+closeBtn.BorderSizePixel = 0
+
+local minBtn = Instance.new("TextButton", main)
+minBtn.Size = UDim2.new(0, 32, 0, 32)
+minBtn.Position = UDim2.new(1, -64, 0, 0)
+minBtn.Text = "-"
+minBtn.TextColor3 = Color3.new(1,1,0.4)
+minBtn.Font = Enum.Font.SourceSansBold
+minBtn.TextSize = 28
+minBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+minBtn.BorderSizePixel = 0
+
+local textBox = Instance.new("TextBox", main)
+textBox.Size = UDim2.new(1, -32, 0, 180)
+textBox.Position = UDim2.new(0, 16, 0, 56)
+textBox.MultiLine = true
+textBox.Text = ""
+textBox.PlaceholderText = "在这里输入Lua脚本"
+textBox.TextSize = 18
+textBox.TextColor3 = Color3.new(1,1,1)
+textBox.ClearTextOnFocus = false
+textBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+textBox.BorderSizePixel = 0
+
+local execBtn = Instance.new("TextButton", main)
+execBtn.Size = UDim2.new(0, 100, 0, 36)
+execBtn.Position = UDim2.new(0, 20, 1, -46)
+execBtn.Text = "执 行"
+execBtn.TextColor3 = Color3.fromRGB(0,255,128)
+execBtn.Font = Enum.Font.SourceSansBold
+execBtn.TextSize = 20
+execBtn.BackgroundColor3 = Color3.fromRGB(30, 60, 40)
+execBtn.BorderSizePixel = 0
+
+local clearBtn = Instance.new("TextButton", main)
+clearBtn.Size = UDim2.new(0, 100, 0, 36)
+clearBtn.Position = UDim2.new(0, 130, 1, -46)
+clearBtn.Text = "清 空"
+clearBtn.TextColor3 = Color3.fromRGB(255,255,0)
+clearBtn.Font = Enum.Font.SourceSansBold
+clearBtn.TextSize = 20
+clearBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 20)
+clearBtn.BorderSizePixel = 0
+
+local statusLabel = Instance.new("TextLabel", main)
+statusLabel.Size = UDim2.new(0, 80, 0, 36)
+statusLabel.Position = UDim2.new(1, -110, 1, -46)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = ""
+statusLabel.TextColor3 = Color3.fromRGB(0,255,128)
+statusLabel.Font = Enum.Font.SourceSansBold
+statusLabel.TextSize = 18
+
+local minimized = false
+minBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        main.Size = UDim2.new(0, 340, 0, 40)
+        textBox.Visible = false
+        execBtn.Visible = false
+        clearBtn.Visible = false
+        statusLabel.Visible = false
+    else
+        main.Size = UDim2.new(0, 340, 0, 320)
+        textBox.Visible = true
+        execBtn.Visible = true
+        clearBtn.Visible = true
+        statusLabel.Visible = true
+    end
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+clearBtn.MouseButton1Click:Connect(function()
+    textBox.Text = ""
+    statusLabel.Text = ""
+end)
+
+execBtn.MouseButton1Click:Connect(function()
+    local src = textBox.Text
+    if src == "" then
+        statusLabel.Text = "未输入"
+        return
+    end
+    local s, e = pcall(function()
+        if loadstring then
+            loadstring(src)()
+        else
+            error("此环境无法执行脚本")
+        end
+    end)
+    if s then
+        statusLabel.Text = "执行成功"
+    else
+        statusLabel.Text = "错误"
+        warn("执行器错误:", e)
+    end
+    wait(1)
+    statusLabel.Text = ""
+end)
+
+main.Draggable = true
+main.Active = true
