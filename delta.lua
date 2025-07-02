@@ -5,8 +5,7 @@ local gui = Instance.new("ScreenGui", plr.PlayerGui)
 gui.Name = "DeltaLikeExecutorUI_Mobile"
 
 local function makeDraggable(frame, handle)
-    local dragging = false
-    local dragInput, dragStart, startPos
+    local dragging, dragInput, dragStart, startPos
     local function update(input)
         local delta = input.Position - dragStart
         frame.Position = startPos + UDim2.new(0, delta.X, 0, delta.Y)
@@ -45,7 +44,7 @@ topbar.BorderSizePixel = 0
 topbar.Active = true
 
 local title = Instance.new("TextLabel", topbar)
-title.Text = "Kolpe Executor"
+title.Text = "Delta Like Executor"
 title.Font = Enum.Font.GothamBold
 title.TextColor3 = Color3.fromRGB(50,220,180)
 title.TextSize = 22
@@ -98,38 +97,84 @@ miniWindow.MouseButton1Click:Connect(function()
     miniWindow.Visible = false
 end)
 
-local tabFrame = Instance.new("Frame", main)
-tabFrame.Size = UDim2.new(1,0,0,32)
-tabFrame.Position = UDim2.new(0,0,0,38)
-tabFrame.BackgroundColor3 = Color3.fromRGB(23, 30, 35)
-tabFrame.BorderSizePixel = 0
+local tabScroll = Instance.new("ScrollingFrame", main)
+tabScroll.Name = "TabScroll"
+tabScroll.Position = UDim2.new(0,0,0,38)
+tabScroll.Size = UDim2.new(1,0,0,36)
+tabScroll.BackgroundColor3 = Color3.fromRGB(23, 30, 35)
+tabScroll.BorderSizePixel = 0
+tabScroll.ScrollingDirection = Enum.ScrollingDirection.X
+tabScroll.CanvasSize = UDim2.new(0,0,1,0)
+tabScroll.ScrollBarThickness = 5
+tabScroll.AutomaticCanvasSize = Enum.AutomaticSize.X
+tabScroll.ClipsDescendants = true
 
 local tabs = {}
 local tabContentFrames = {}
 local curTab = 1
+
 local function selectTab(idx)
     for i,v in ipairs(tabContentFrames) do
         v.Visible = (i == idx)
-        tabs[i].BackgroundColor3 = (i==idx) and Color3.fromRGB(35, 80, 90) or Color3.fromRGB(26,42,50)
+        tabs[i].TabBtn.BackgroundColor3 = (i==idx) and Color3.fromRGB(35, 80, 90) or Color3.fromRGB(26,42,50)
     end
     curTab = idx
 end
+
+local function removeTab(idx)
+    if #tabs <= 1 then return end
+    tabs[idx].TabBtn:Destroy()
+    tabContentFrames[idx]:Destroy()
+    table.remove(tabs, idx)
+    table.remove(tabContentFrames, idx)
+    for i,info in ipairs(tabs) do
+        info.TabBtn.Position = UDim2.new(0, (i-1)*122, 0, 0)
+        info.Idx = i
+        info.CloseBtn.TagIdx = i
+    end
+    if curTab > #tabs then curTab = #tabs end
+    selectTab(curTab)
+end
+
 local function createTab(name)
     local idx = #tabs + 1
-    local tab = Instance.new("TextButton", tabFrame)
-    tab.Text = name
-    tab.Font = Enum.Font.GothamSemibold
-    tab.TextSize = 16
-    tab.Size = UDim2.new(0, 116, 1, -2)
-    tab.Position = UDim2.new(0, (idx-1)*118, 0, 0)
-    tab.BorderSizePixel = 0
-    tab.AutoButtonColor = false
-    tab.BackgroundColor3 = (idx==1) and Color3.fromRGB(35, 80, 90) or Color3.fromRGB(26,42,50)
-    tab.TextColor3 = Color3.fromRGB(200,255,235)
-    tab.MouseButton1Click:Connect(function()
+
+    local tabBtn = Instance.new("Frame", tabScroll)
+    tabBtn.Size = UDim2.new(0,120,1,0)
+    tabBtn.Position = UDim2.new(0, (idx-1)*122, 0, 0)
+    tabBtn.BackgroundColor3 = (idx==1) and Color3.fromRGB(35,80,90) or Color3.fromRGB(26,42,50)
+    tabBtn.BorderSizePixel = 0
+
+    local tabText = Instance.new("TextButton", tabBtn)
+    tabText.Size = UDim2.new(1,-22,1,0)
+    tabText.Position = UDim2.new(0,0,0,0)
+    tabText.BackgroundTransparency = 1
+    tabText.Text = name
+    tabText.Font = Enum.Font.GothamSemibold
+    tabText.TextSize = 16
+    tabText.TextColor3 = Color3.fromRGB(200,255,235)
+    tabText.TextXAlignment = Enum.TextXAlignment.Left
+
+    local closeBtn = Instance.new("TextButton", tabBtn)
+    closeBtn.Text = "✖"
+    closeBtn.Font = Enum.Font.Gotham
+    closeBtn.TextSize = 15
+    closeBtn.TextColor3 = Color3.fromRGB(255,60,60)
+    closeBtn.BackgroundTransparency = 1
+    closeBtn.Size = UDim2.new(0,20,0,20)
+    closeBtn.Position = UDim2.new(1,-20,0,2)
+    closeBtn.ZIndex = 2
+    closeBtn.TagIdx = idx
+    closeBtn.MouseButton1Click:Connect(function()
+        if closeBtn.TagIdx <= #tabs then
+            removeTab(closeBtn.TagIdx)
+        end
+    end)
+
+    tabText.MouseButton1Click:Connect(function()
         selectTab(idx)
     end)
-    table.insert(tabs, tab)
+
     local fr = Instance.new("Frame", main)
     fr.BackgroundTransparency = 1
     fr.Size = UDim2.new(1,-24,1,-130)
@@ -143,7 +188,7 @@ local function createTab(name)
     scroll.ScrollBarThickness = 10
     scroll.Name = "ScriptScroll"
     scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
     local tb = Instance.new("TextBox", scroll)
     tb.Size = UDim2.new(1,-12,0,9999)
     tb.Position = UDim2.new(0,6,0,6)
@@ -161,24 +206,31 @@ local function createTab(name)
     tb.AutomaticSize = Enum.AutomaticSize.Y
     tb.Name = "ScriptBox"
     fr.Name = name
+
+    tabs[idx] = {TabBtn = tabBtn, CloseBtn = closeBtn, Idx = idx}
     tabContentFrames[idx] = fr
+
+    tabScroll.CanvasSize = UDim2.new(0, (#tabs)*122+44, 0, 0)
     return idx
 end
+
 createTab("脚本1")
 createTab("脚本2")
-local addTabBtn = Instance.new("TextButton", tabFrame)
+
+local addTabBtn = Instance.new("TextButton", tabScroll)
 addTabBtn.Text = "+"
 addTabBtn.Font = Enum.Font.GothamBold
 addTabBtn.TextSize = 21
 addTabBtn.Size = UDim2.new(0, 38, 1, -4)
-addTabBtn.Position = UDim2.new(0, #tabs*118, 0, 0)
+addTabBtn.Position = UDim2.new(0, #tabs*122, 0, 0)
 addTabBtn.BackgroundColor3 = Color3.fromRGB(46,85,100)
 addTabBtn.TextColor3 = Color3.fromRGB(255,255,200)
 addTabBtn.BorderSizePixel = 0
 addTabBtn.AutoButtonColor = true
 addTabBtn.MouseButton1Click:Connect(function()
     local idx = createTab("脚本"..tostring(#tabs+1))
-    addTabBtn.Position = UDim2.new(0, #tabs*118, 0, 0)
+    addTabBtn.Position = UDim2.new(0, #tabs*122, 0, 0)
+    tabScroll.CanvasSize = UDim2.new(0, (#tabs)*122+44, 0, 0)
     selectTab(idx)
 end)
 
@@ -208,47 +260,60 @@ local execBtn = clearBtn:Clone()
 execBtn.Parent = main
 execBtn.Position = UDim2.new(1,-110,1,-55)
 execBtn.Size = UDim2.new(0,100,0,36)
-execBtn.BackgroundColor3 = Color3.fromRGB(38,195,160)
-execBtn.Text = "执行脚本"
-execBtn.TextColor3 = Color3.fromRGB(255,255,255)
+execBtn.Text = "执行"
 
 local outputBox = Instance.new("TextBox", main)
-outputBox.Size = UDim2.new(1,-24,0,35)
-outputBox.Position = UDim2.new(0,12,1,-98)
-outputBox.BackgroundColor3 = Color3.fromRGB(45,50,54)
-outputBox.TextColor3 = Color3.fromRGB(185,255,190)
+outputBox.Size = UDim2.new(1,-26,0,44)
+outputBox.Position = UDim2.new(0,13,1,-96)
+outputBox.BackgroundColor3 = Color3.fromRGB(20,20,24)
+outputBox.TextColor3 = Color3.fromRGB(193,255,200)
 outputBox.Text = "输出："
-outputBox.Font = Enum.Font.Code
-outputBox.TextSize = 17
-outputBox.TextEditable = false
 outputBox.ClearTextOnFocus = false
+outputBox.Font = Enum.Font.GothamMono
+outputBox.TextSize = 17
+outputBox.TextXAlignment = Enum.TextXAlignment.Left
+outputBox.TextYAlignment = Enum.TextYAlignment.Top
+outputBox.TextWrapped = true
+outputBox.TextEditable = false
+outputBox.MultiLine = true
+outputBox.AutomaticSize = Enum.AutomaticSize.None
+outputBox.ClipsDescendants = true
+outputBox.BorderSizePixel = 0
 
 clearBtn.MouseButton1Click:Connect(function()
     local scriptBox = tabContentFrames[curTab]:FindFirstChild("ScriptScroll"):FindFirstChild("ScriptBox")
     scriptBox.Text = ""
+    outputBox.Text = "输出："
 end)
-saveBtn.MouseButton1Click:Connect(function()
-    local scriptBox = tabContentFrames[curTab]:FindFirstChild("ScriptScroll"):FindFirstChild("ScriptBox")
-    pcall(function()
-        setclipboard(scriptBox.Text)
-        outputBox.Text = "输出：已复制到剪贴板！"
-    end)
-end)
-loadBtn.MouseButton1Click:Connect(function()
-    local scriptBox = tabContentFrames[curTab]:FindFirstChild("ScriptScroll"):FindFirstChild("ScriptBox")
-    scriptBox:CaptureFocus()
-    outputBox.Text = "输出：粘贴代码（Ctrl+V）"
-end)
+
 execBtn.MouseButton1Click:Connect(function()
     local scriptBox = tabContentFrames[curTab]:FindFirstChild("ScriptScroll"):FindFirstChild("ScriptBox")
     local code = scriptBox.Text
-    outputBox.Text = "输出：\n"..tostring(code)
-    -- 如果你要在本地运行Lua，可解除以下注释
-    -- local f,err = loadstring(code)
-    -- if f then
-    --     local success, result = pcall(f)
-    --     outputBox.Text = success and "输出：\n"..tostring(result) or "错误：\n"..tostring(result)
-    -- else
-    --     outputBox.Text = "语法错误：\n"..tostring(err)
-    -- end
+    if code and code:match("%S") then
+        local f, err = loadstring(code)
+        if f then
+            local success, result = pcall(f)
+            if success then
+                outputBox.Text = "输出：\n" .. (result and tostring(result) or "脚本执行成功")
+            else
+                outputBox.Text = "错误：\n" .. tostring(result)
+            end
+        else
+            outputBox.Text = "语法错误：\n" .. tostring(err)
+        end
+    else
+        outputBox.Text = "输出：请先输入代码"
+    end
+end)
+
+saveBtn.MouseButton1Click:Connect(function()
+    local scriptBox = tabContentFrames[curTab]:FindFirstChild("ScriptScroll"):FindFirstChild("ScriptBox")
+    setclipboard(scriptBox.Text)  -- Roblox Studio窗口下有效
+    outputBox.Text = "输出：已复制脚本到剪贴板"
+end)
+
+loadBtn.MouseButton1Click:Connect(function()
+    local scriptBox = tabContentFrames[curTab]:FindFirstChild("ScriptScroll"):FindFirstChild("ScriptBox")
+    scriptBox.Text = ""
+    outputBox.Text = "输出：请手动粘贴脚本"
 end)
