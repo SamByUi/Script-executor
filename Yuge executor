@@ -1,0 +1,270 @@
+local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui")
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- 主窗口
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 480, 0, 340)
+mainFrame.Position = UDim2.new(0.5, -240, 0.5, -170)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+mainFrame.Active = true
+
+local UICorner = Instance.new("UICorner", mainFrame)
+UICorner.CornerRadius = UDim.new(0, 18)
+
+local UIGradient = Instance.new("UIGradient", mainFrame)
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(46, 47, 60)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 26))
+}
+mainFrame.BackgroundTransparency = 0
+
+-- 阴影
+local shadow = Instance.new("ImageLabel", mainFrame)
+shadow.Image = "rbxassetid://1316045217"
+shadow.Size = UDim2.new(1, 64, 1, 64)
+shadow.Position = UDim2.new(0,-32,0,-32)
+shadow.BackgroundTransparency = 1
+shadow.ImageTransparency = 0.83
+shadow.ZIndex = 0
+
+mainFrame.ZIndex = 1
+
+-- 顶部栏
+local topbar = Instance.new("Frame", mainFrame)
+topbar.Size = UDim2.new(1, 0, 0, 46)
+topbar.BackgroundTransparency = 1
+topbar.ZIndex = 2
+
+local title = Instance.new("TextLabel", topbar)
+title.Text = "Yuge 执行器"
+title.Size = UDim2.new(1, -120, 1, 0)
+title.Position = UDim2.new(0, 18, 0, 0)
+title.Font = Enum.Font.GothamBold
+title.TextColor3 = Color3.fromRGB(212, 240, 255)
+title.BackgroundTransparency = 1
+title.TextSize = 28
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.ZIndex = 2
+
+-- 关闭按钮
+local closeBtn = Instance.new("TextButton", topbar)
+closeBtn.Size = UDim2.new(0, 38, 0, 38)
+closeBtn.Position = UDim2.new(1, -46, 0.5, -19)
+closeBtn.Text = "×"
+closeBtn.Font = Enum.Font.GothamBlack
+closeBtn.TextSize = 30
+closeBtn.TextColor3 = Color3.fromRGB(255,80,80)
+closeBtn.BackgroundColor3 = Color3.fromRGB(36,36,36)
+closeBtn.AutoButtonColor = true
+closeBtn.ZIndex = 2
+
+local closeCorner = Instance.new("UICorner", closeBtn)
+closeCorner.CornerRadius = UDim.new(1,0)
+
+-- 悬浮窗（初始隐藏）
+local miniFrame = Instance.new("Frame")
+miniFrame.Size = UDim2.new(0, 80, 0, 80)
+miniFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
+miniFrame.BackgroundColor3 = Color3.fromRGB(30,180,220)
+miniFrame.BackgroundTransparency = 0
+miniFrame.Visible = false
+miniFrame.Parent = screenGui
+miniFrame.ZIndex = 10
+miniFrame.Active = true
+
+local miniCorner = Instance.new("UICorner", miniFrame)
+miniCorner.CornerRadius = UDim.new(1, 0)
+
+local miniLabel = Instance.new("TextLabel", miniFrame)
+miniLabel.Size = UDim2.new(1,0,1,0)
+miniLabel.BackgroundTransparency = 1
+miniLabel.Font = Enum.Font.GothamBlack
+miniLabel.Text = "Yuge"
+miniLabel.TextColor3 = Color3.fromRGB(255,255,255)
+miniLabel.TextScaled = true
+miniLabel.ZIndex = 11
+
+-- 缩小按钮
+local minimizeBtn = Instance.new("TextButton", topbar)
+minimizeBtn.Size = UDim2.new(0, 38, 0, 38)
+minimizeBtn.Position = UDim2.new(1, -94, 0.5, -19)
+minimizeBtn.Text = "-"
+minimizeBtn.Font = Enum.Font.GothamBlack
+minimizeBtn.TextSize = 30
+minimizeBtn.TextColor3 = Color3.fromRGB(70,200,255)
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(36,36,42)
+minimizeBtn.AutoButtonColor = true
+minimizeBtn.ZIndex = 2
+
+local minimizeCorner = Instance.new("UICorner", minimizeBtn)
+minimizeCorner.CornerRadius = UDim.new(1,0)
+
+-- 输入框
+local inputBox = Instance.new("TextBox", mainFrame)
+inputBox.Size = UDim2.new(1, -40, 1, -146)
+inputBox.Position = UDim2.new(0, 20, 0, 56)
+inputBox.Font = Enum.Font.Code
+inputBox.TextSize = 18
+inputBox.TextWrapped = true
+inputBox.TextColor3 = Color3.fromRGB(240, 240, 240)
+inputBox.BackgroundColor3 = Color3.fromRGB(44, 48, 62)
+inputBox.ClearTextOnFocus = false
+inputBox.TextXAlignment = Enum.TextXAlignment.Left
+inputBox.TextYAlignment = Enum.TextYAlignment.Top
+inputBox.MultiLine = true
+inputBox.Text = "-- 粘贴或输入你的Lua脚本"
+inputBox.ZIndex = 2
+inputBox.PlaceholderColor3 = Color3.fromRGB(120,120,120)
+
+local inputCorner = Instance.new("UICorner", inputBox)
+inputCorner.CornerRadius = UDim.new(0, 9)
+
+-- 执行按钮
+local executeBtn = Instance.new("TextButton", mainFrame)
+executeBtn.Text = "执 行"
+executeBtn.Size = UDim2.new(0, 138, 0, 44)
+executeBtn.Position = UDim2.new(1, -158, 1, -56)
+executeBtn.Font = Enum.Font.GothamSemibold
+executeBtn.BackgroundColor3 = Color3.fromRGB(0, 206, 186)
+executeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+executeBtn.TextSize = 22
+executeBtn.ZIndex = 2
+
+local exCorner = Instance.new("UICorner", executeBtn)
+exCorner.CornerRadius = UDim.new(1,0)
+
+executeBtn.MouseEnter:Connect(function() executeBtn.BackgroundColor3 = Color3.fromRGB(16, 242, 186) end)
+executeBtn.MouseLeave:Connect(function() executeBtn.BackgroundColor3 = Color3.fromRGB(0, 206, 186) end)
+
+-- 状态栏
+local statusLabel = Instance.new("TextLabel", mainFrame)
+statusLabel.Size = UDim2.new(0.6, 0, 0, 36)
+statusLabel.Position = UDim2.new(0, 14, 1, -44)
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.TextSize = 16
+statusLabel.BackgroundTransparency = 1
+statusLabel.TextColor3 = Color3.fromRGB(160,220,150)
+statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+statusLabel.Text = ""
+statusLabel.ZIndex = 2
+
+-- 执行按钮功能
+executeBtn.MouseButton1Click:Connect(function()
+    local code = inputBox.Text
+    local f, err = loadstring(code)
+    if f then
+        local success, msg = pcall(f)
+        if success then
+            statusLabel.Text = "执行成功！"
+            statusLabel.TextColor3 = Color3.fromRGB(50,255,150)
+        else
+            statusLabel.Text = "运行时错误！"
+            statusLabel.TextColor3 = Color3.fromRGB(255,80,80)
+            inputBox.Text = tostring(msg)
+        end
+    else
+        statusLabel.Text = "语法错误！"
+        statusLabel.TextColor3 = Color3.fromRGB(255,120,80)
+        inputBox.Text = tostring(err)
+    end
+    task.wait(1.7)
+    statusLabel.Text = ""
+end)
+
+-- 动画与拖动
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local function fade(frame, targetTrans, time)
+    return TweenService:Create(frame, TweenInfo.new(time), {BackgroundTransparency = targetTrans})
+end
+local function fadeAll(list, target, time)
+    for _,v in ipairs(list) do
+        TweenService:Create(v, TweenInfo.new(time), {BackgroundTransparency = target}):Play()
+    end
+end
+
+-- 缩小到悬浮窗
+minimizeBtn.MouseButton1Click:Connect(function()
+    mainFrame.Active = false
+    local others = {inputBox, executeBtn, statusLabel, topbar, shadow}
+    fadeAll(others,1,0.33)
+    fade(mainFrame,1,0.33):Play()
+    task.wait(0.36)
+    mainFrame.Visible = false
+    mainFrame.BackgroundTransparency = 0
+    for _,v in ipairs(others) do v.BackgroundTransparency = 0 end
+    miniFrame.Visible = true
+    miniFrame.BackgroundTransparency = 1
+    fade(miniFrame,0,0.33):Play()
+end)
+
+-- 悬浮窗拖动
+local draggingMini, miniDragInput, miniDragStart, miniStartPos
+miniFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingMini = true
+        miniDragStart = input.Position
+        miniStartPos = miniFrame.Position
+        input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then draggingMini = false end end)
+    end
+end)
+miniFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        miniDragInput = input
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if draggingMini and input == miniDragInput then
+        local delta = input.Position - miniDragStart
+        miniFrame.Position = UDim2.new(miniStartPos.X.Scale, miniStartPos.X.Offset + delta.X,
+                                      miniStartPos.Y.Scale, miniStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- 点击悬浮窗还原
+miniFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if not draggingMini then
+            fade(miniFrame,1,0.33):Play()
+            task.wait(0.36)
+            miniFrame.Visible = false
+            mainFrame.Visible = true
+            mainFrame.Active = true
+            local others = {inputBox, executeBtn, statusLabel, topbar, shadow}
+            for _,v in ipairs(others) do v.BackgroundTransparency = 1 end
+            mainFrame.BackgroundTransparency = 1
+            fadeAll(others,0,0.33)
+            fade(mainFrame,0,0.33):Play()
+        end
+    end
+end)
+
+closeBtn.MouseButton1Click:Connect(function() screenGui:Destroy() end)
+
+-- 主窗口拖动
+local dragging, dragInput, dragStart, startPos
+topbar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
+    end
+end)
+topbar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input == dragInput then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                      startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
