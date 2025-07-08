@@ -179,38 +179,34 @@ end
 makeDraggable(frame, titleBar)
 makeDraggable(floatBtn, floatBtn)
 
-function fadeIn(obj, to, time)
-    obj.Visible = true
-    obj.BackgroundTransparency = 1
-    TweenService:Create(obj, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = to or 0}):Play()
-end
-function fadeOut(obj, to, time)
-    TweenService:Create(obj, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = to or 1}):Play()
-    task.wait(time)
-    obj.Visible = false
-end
-
 function fadeInAll(t, time)
     t.Visible = true
+    -- 对所有需要渐隐的对象保存原本的透明度
     for _,v in ipairs(t:GetDescendants()) do
         if v:IsA("Frame") or v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") then
-            v.BackgroundTransparency = 1
-            TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = v == inputBox and 1 or (v.BackgroundTransparency or 0)}):Play()
+            -- 只对背景（非inputBox）做渐入
+            if v ~= inputBox then
+                v.BackgroundTransparency = 1
+                TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+            end
         end
-        if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
+        if (v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton")) then
             v.TextTransparency = 1
-            TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {TextTransparency = v == inputBox and 0 or (v.TextTransparency or 0)}):Play()
+            TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
         end
     end
+    t.BackgroundTransparency = 1
     TweenService:Create(t, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
 end
 
 function fadeOutAll(t, time)
     for _,v in ipairs(t:GetDescendants()) do
         if v:IsA("Frame") or v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") then
-            TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+            if v ~= inputBox then
+                TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+            end
         end
-        if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
+        if (v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton")) then
             TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
         end
     end
