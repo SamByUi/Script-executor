@@ -1,8 +1,7 @@
-local Player = game.Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SyunptExecutorUI"
-screenGui.Parent = Player:WaitForChild("PlayerGui")
+screenGui.Parent = game:GetService("CoreGui")
 screenGui.IgnoreGuiInset = true
 
 local frame = Instance.new("Frame")
@@ -14,12 +13,14 @@ frame.Visible = false
 frame.BackgroundTransparency = 1
 frame.Parent = screenGui
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0,18)
-local gradient = Instance.new("UIGradient", frame)
+
+local gradient = Instance.new("UIGradient")
 gradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(41,121,255)),
     ColorSequenceKeypoint.new(1, Color3.fromRGB(235,47,6))
 }
 gradient.Rotation = 30
+gradient.Parent = frame
 
 local titleBar = Instance.new("Frame")
 titleBar.Size = UDim2.new(1, 0, 0, 38)
@@ -185,13 +186,15 @@ function fadeInAll(t, time)
             v.BackgroundTransparency = 1
             TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
         end
-        if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
+        if v:IsA("TextLabel") or v:IsA("TextBox") then
             v.TextTransparency = 1
             TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
         end
     end
-    t.BackgroundTransparency = 1
-    TweenService:Create(t, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+    if t:IsA("Frame") or t:IsA("TextButton") then
+        t.BackgroundTransparency = 1
+        TweenService:Create(t, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+    end
 end
 
 function fadeOutAll(t, time)
@@ -199,23 +202,25 @@ function fadeOutAll(t, time)
         if v:IsA("Frame") or v:IsA("TextButton") then
             TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
         end
-        if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
+        if v:IsA("TextLabel") or v:IsA("TextBox") then
             TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
         end
     end
-    TweenService:Create(t, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
-    task.wait(time)
-    t.Visible = false
+    if t:IsA("Frame") or t:IsA("TextButton") then
+        TweenService:Create(t, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+    end
 end
 
 local uiShown = false
 local showTime = 0.24
 
 local function showMain()
+    fadeOutAll(floatBtn, 0.16)
+    task.wait(0.17)
+    floatBtn.Visible = false
+
     frame.Visible = true
     fadeInAll(frame, showTime)
-    floatBtn.Visible = false
-    fadeOutAll(floatBtn, 0.18)
     uiShown = true
 end
 
@@ -223,18 +228,18 @@ local function hideMain()
     fadeOutAll(frame, showTime)
     task.wait(showTime)
     frame.Visible = false
+
     floatBtn.Visible = true
     fadeInAll(floatBtn, 0.22)
     uiShown = false
 end
 
--- 首次显示气泡+主界面
 floatBtn.Visible = true
 fadeInAll(floatBtn, 0.11)
 frame.Visible = false
 
 floatBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and not uiShown then
         showMain()
     end
 end)
