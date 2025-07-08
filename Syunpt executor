@@ -35,6 +35,7 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 24
 title.TextColor3 = Color3.new(1,1,1)
 title.TextXAlignment = Enum.TextXAlignment.Left
+title.TextTransparency = 1
 title.Parent = titleBar
 
 local closeBtn = Instance.new("TextButton")
@@ -45,8 +46,10 @@ closeBtn.Text = "X"
 closeBtn.TextColor3 = Color3.new(1,1,1)
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.TextSize = 22
-Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1,0)
+closeBtn.BackgroundTransparency = 1
+closeBtn.TextTransparency = 1
 closeBtn.Parent = titleBar
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1,0)
 
 local miniBtn = Instance.new("TextButton")
 miniBtn.Size = UDim2.new(0, 32, 0, 32)
@@ -56,14 +59,16 @@ miniBtn.Text = "-"
 miniBtn.TextColor3 = Color3.new(1,1,1)
 miniBtn.Font = Enum.Font.GothamBold
 miniBtn.TextSize = 34
-Instance.new("UICorner", miniBtn).CornerRadius = UDim.new(1,0)
+miniBtn.BackgroundTransparency = 1
+miniBtn.TextTransparency = 1
 miniBtn.Parent = titleBar
+Instance.new("UICorner", miniBtn).CornerRadius = UDim.new(1,0)
 
 local inputBg = Instance.new("Frame")
 inputBg.Size = UDim2.new(0.92, 0, 0.51, 0)
 inputBg.Position = UDim2.new(0.04, 0, 0.22, 0)
 inputBg.BackgroundColor3 = Color3.fromRGB(10,10,25)
-inputBg.BackgroundTransparency = 0.2
+inputBg.BackgroundTransparency = 1
 inputBg.Parent = frame
 Instance.new("UICorner", inputBg).CornerRadius = UDim.new(0,14)
 
@@ -74,7 +79,7 @@ waterMark.BackgroundTransparency = 1
 waterMark.Text = "Syunpt"
 waterMark.Font = Enum.Font.GothamBlack
 waterMark.TextColor3 = Color3.fromRGB(200,200,200)
-waterMark.TextTransparency = 0.88
+waterMark.TextTransparency = 1
 waterMark.TextSize = 75
 waterMark.ZIndex = 2
 
@@ -92,6 +97,7 @@ inputBox.TextXAlignment = Enum.TextXAlignment.Left
 inputBox.TextYAlignment = Enum.TextYAlignment.Top
 inputBox.Size = UDim2.new(1,-16,1,-16)
 inputBox.Position = UDim2.new(0, 8, 0, 8)
+inputBox.TextTransparency = 1
 inputBox.ZIndex = 3
 inputBox.Parent = inputBg
 
@@ -103,6 +109,8 @@ clearBtn.Font = Enum.Font.GothamBold
 clearBtn.Text = "清空"
 clearBtn.TextSize = 20
 clearBtn.TextColor3 = Color3.new(1,1,1)
+clearBtn.BackgroundTransparency = 1
+clearBtn.TextTransparency = 1
 clearBtn.Parent = frame
 Instance.new("UICorner", clearBtn).CornerRadius = UDim.new(1,0)
 
@@ -114,6 +122,8 @@ execBtn.Font = Enum.Font.GothamBold
 execBtn.Text = "执行"
 execBtn.TextSize = 20
 execBtn.TextColor3 = Color3.new(1,1,1)
+execBtn.BackgroundTransparency = 1
+execBtn.TextTransparency = 1
 execBtn.Parent = frame
 Instance.new("UICorner", execBtn).CornerRadius = UDim.new(1,0)
 
@@ -132,6 +142,7 @@ floatS.Font = Enum.Font.GothamBlack
 floatS.TextColor3 = Color3.new(1,1,1)
 floatS.TextSize = 39
 floatS.BackgroundTransparency = 1
+floatS.TextTransparency = 1
 floatS.Size = UDim2.new(1,0,1,0)
 floatS.ZIndex = 2
 
@@ -142,55 +153,39 @@ floatGradient.Color = ColorSequence.new{
 }
 floatGradient.Rotation = 120
 
-local function makeDraggable(g, dragBar)
-    local dragging = false
-    local dragStart, startPos = nil, nil
-    local userInputService = game:GetService("UserInputService")
-    
-    local function inputBegan(input)
+local function makeDraggable(dragFrame, dragButton)
+    local dragging, dragInput, dragStart, startPos
+    dragButton = dragButton or dragFrame
+    dragButton.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
-            startPos = g.Position
+            startPos = dragFrame.Position
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
             end)
         end
-    end
-    local function inputChanged(input)
-        if dragging then
-            local delta = input.Position - dragStart
-            g.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end
-    dragBar.InputBegan:Connect(inputBegan)
-    dragBar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            inputChanged(input)
-        end
     end)
-    userInputService.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            inputChanged(input)
+    dragButton.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            dragFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
 end
-
 makeDraggable(frame, titleBar)
 makeDraggable(floatBtn, floatBtn)
 
 function fadeInAll(t, time)
     t.Visible = true
-    -- 对所有需要渐隐的对象保存原本的透明度
     for _,v in ipairs(t:GetDescendants()) do
-        if v:IsA("Frame") or v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") then
-            -- 只对背景（非inputBox）做渐入
-            if v ~= inputBox then
-                v.BackgroundTransparency = 1
-                TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
-            end
+        if v:IsA("Frame") or v:IsA("TextButton") then
+            v.BackgroundTransparency = 1
+            TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
         end
-        if (v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton")) then
+        if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
             v.TextTransparency = 1
             TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
         end
@@ -201,12 +196,10 @@ end
 
 function fadeOutAll(t, time)
     for _,v in ipairs(t:GetDescendants()) do
-        if v:IsA("Frame") or v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") then
-            if v ~= inputBox then
-                TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
-            end
+        if v:IsA("Frame") or v:IsA("TextButton") then
+            TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
         end
-        if (v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton")) then
+        if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
             TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
         end
     end
@@ -215,41 +208,58 @@ function fadeOutAll(t, time)
     t.Visible = false
 end
 
-closeBtn.MouseButton1Click:Connect(function()
-    fadeOutAll(frame, 0.22)
-    fadeOut(floatBtn, 1, 0.25)
+local uiShown = false
+local showTime = 0.24
+
+local function showMain()
+    frame.Visible = true
+    fadeInAll(frame, showTime)
+    floatBtn.Visible = false
+    fadeOutAll(floatBtn, 0.18)
+    uiShown = true
+end
+
+local function hideMain()
+    fadeOutAll(frame, showTime)
+    task.wait(showTime)
+    frame.Visible = false
+    floatBtn.Visible = true
+    fadeInAll(floatBtn, 0.22)
+    uiShown = false
+end
+
+-- 首次显示气泡+主界面
+floatBtn.Visible = true
+fadeInAll(floatBtn, 0.11)
+frame.Visible = false
+
+floatBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        showMain()
+    end
 end)
+
+closeBtn.MouseButton1Click:Connect(function()
+    hideMain()
+end)
+
+miniBtn.MouseButton1Click:Connect(function()
+    hideMain()
+end)
+
 clearBtn.MouseButton1Click:Connect(function()
     inputBox.Text = ""
 end)
+
 execBtn.MouseButton1Click:Connect(function()
-    local code = inputBox.Text
-    print("[Syunpt Executor内]:\n" .. code)
-end)
-miniBtn.MouseButton1Click:Connect(function()
-    fadeOutAll(frame, 0.22)
-    wait(0.24)
-    fadeIn(floatBtn, 0, 0.21)
-end)
-
--- 悬浮球点击和拖动判定
-local floatingDrag = false
-local lastPos = nil
-floatBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        floatingDrag = true
-        lastPos = input.Position
+    local source = inputBox.Text
+    local func, err = loadstring(source)
+    if func then
+        local ok, res = pcall(func)
+        if not ok then
+            warn("脚本运行时出错: "..tostring(res))
+        end
+    else
+        warn("脚本语法错误: "..tostring(err))
     end
 end)
-floatBtn.InputEnded:Connect(function(input)
-    if floatingDrag and lastPos and ((input.Position - lastPos).magnitude < 10) then
-        fadeOut(floatBtn, 1, 0.22)
-        wait(0.22)
-        fadeInAll(frame, 0.21)
-    end
-    floatingDrag = false
-end)
-
--- 启动时主界面显示，悬浮球隐藏
-fadeInAll(frame, 0.3)
-floatBtn.Visible = false
