@@ -1,0 +1,259 @@
+local Player = game.Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SyunptExecutorUI"
+screenGui.Parent = Player:WaitForChild("PlayerGui")
+screenGui.IgnoreGuiInset = true
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 390, 0, 255)
+frame.Position = UDim2.new(0.5, -195, 0.45, -130)
+frame.BackgroundColor3 = Color3.fromRGB(0,0,60)
+frame.ClipsDescendants = true
+frame.Visible = false
+frame.BackgroundTransparency = 1
+frame.Parent = screenGui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,18)
+local gradient = Instance.new("UIGradient", frame)
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(41,121,255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(235,47,6))
+}
+gradient.Rotation = 30
+
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 38)
+titleBar.BackgroundTransparency = 1
+titleBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Text = "Syunpt Executor"
+title.Size = UDim2.new(1, -84, 1, 0)
+title.Position = UDim2.new(0, 15, 0, 0)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.TextSize = 24
+title.TextColor3 = Color3.new(1,1,1)
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = titleBar
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 32, 0, 32)
+closeBtn.Position = UDim2.new(1, -38, 0, 3)
+closeBtn.BackgroundColor3 = Color3.fromRGB(255,0,0)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.new(1,1,1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 22
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1,0)
+closeBtn.Parent = titleBar
+
+local miniBtn = Instance.new("TextButton")
+miniBtn.Size = UDim2.new(0, 32, 0, 32)
+miniBtn.Position = UDim2.new(1, -74, 0, 3)
+miniBtn.BackgroundColor3 = Color3.fromRGB(50,130,255)
+miniBtn.Text = "-"
+miniBtn.TextColor3 = Color3.new(1,1,1)
+miniBtn.Font = Enum.Font.GothamBold
+miniBtn.TextSize = 34
+Instance.new("UICorner", miniBtn).CornerRadius = UDim.new(1,0)
+miniBtn.Parent = titleBar
+
+local inputBg = Instance.new("Frame")
+inputBg.Size = UDim2.new(0.92, 0, 0.51, 0)
+inputBg.Position = UDim2.new(0.04, 0, 0.22, 0)
+inputBg.BackgroundColor3 = Color3.fromRGB(10,10,25)
+inputBg.BackgroundTransparency = 0.2
+inputBg.Parent = frame
+Instance.new("UICorner", inputBg).CornerRadius = UDim.new(0,14)
+
+local waterMark = Instance.new("TextLabel", inputBg)
+waterMark.Size = UDim2.new(1,0,1,0)
+waterMark.Position = UDim2.new(0,0,0,0)
+waterMark.BackgroundTransparency = 1
+waterMark.Text = "Syunpt"
+waterMark.Font = Enum.Font.GothamBlack
+waterMark.TextColor3 = Color3.fromRGB(200,200,200)
+waterMark.TextTransparency = 0.88
+waterMark.TextSize = 75
+waterMark.ZIndex = 2
+
+local inputBox = Instance.new("TextBox")
+inputBox.ClearTextOnFocus = false
+inputBox.MultiLine = true
+inputBox.PlaceholderText = "-- 输入Lua脚本..."
+inputBox.Text = ""
+inputBox.TextColor3 = Color3.new(1,1,1)
+inputBox.Font = Enum.Font.Code
+inputBox.TextSize = 19
+inputBox.BackgroundTransparency = 1
+inputBox.TextWrapped = true
+inputBox.TextXAlignment = Enum.TextXAlignment.Left
+inputBox.TextYAlignment = Enum.TextYAlignment.Top
+inputBox.Size = UDim2.new(1,-16,1,-16)
+inputBox.Position = UDim2.new(0, 8, 0, 8)
+inputBox.ZIndex = 3
+inputBox.Parent = inputBg
+
+local clearBtn = Instance.new("TextButton")
+clearBtn.Size = UDim2.new(0, 85, 0, 35)
+clearBtn.Position = UDim2.new(0.59, 0, 0.8, 0)
+clearBtn.BackgroundColor3 = Color3.fromRGB(38, 162, 247)
+clearBtn.Font = Enum.Font.GothamBold
+clearBtn.Text = "清空"
+clearBtn.TextSize = 20
+clearBtn.TextColor3 = Color3.new(1,1,1)
+clearBtn.Parent = frame
+Instance.new("UICorner", clearBtn).CornerRadius = UDim.new(1,0)
+
+local execBtn = Instance.new("TextButton")
+execBtn.Size = UDim2.new(0, 95, 0, 35)
+execBtn.Position = UDim2.new(0.75, 0, 0.8, 0)
+execBtn.BackgroundColor3 = Color3.fromRGB(226, 63, 85)
+execBtn.Font = Enum.Font.GothamBold
+execBtn.Text = "执行"
+execBtn.TextSize = 20
+execBtn.TextColor3 = Color3.new(1,1,1)
+execBtn.Parent = frame
+Instance.new("UICorner", execBtn).CornerRadius = UDim.new(1,0)
+
+local floatBtn = Instance.new("Frame")
+floatBtn.Visible = false
+floatBtn.Size = UDim2.new(0,55,0,55)
+floatBtn.Position = UDim2.new(0.5, -28, 0.88, 0)
+floatBtn.BackgroundColor3 = Color3.fromRGB(16,16,16)
+floatBtn.BackgroundTransparency = 1
+floatBtn.Parent = screenGui
+Instance.new("UICorner", floatBtn).CornerRadius = UDim.new(1,0)
+
+local floatS = Instance.new("TextLabel", floatBtn)
+floatS.Text = "S"
+floatS.Font = Enum.Font.GothamBlack
+floatS.TextColor3 = Color3.new(1,1,1)
+floatS.TextSize = 39
+floatS.BackgroundTransparency = 1
+floatS.Size = UDim2.new(1,0,1,0)
+floatS.ZIndex = 2
+
+local floatGradient = Instance.new("UIGradient", floatS)
+floatGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(41,121,255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(235,47,6))
+}
+floatGradient.Rotation = 120
+
+local function makeDraggable(g, dragBar)
+    local dragging = false
+    local dragStart, startPos = nil, nil
+    local userInputService = game:GetService("UserInputService")
+    
+    local function inputBegan(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = g.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end
+    local function inputChanged(input)
+        if dragging then
+            local delta = input.Position - dragStart
+            g.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end
+    dragBar.InputBegan:Connect(inputBegan)
+    dragBar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            inputChanged(input)
+        end
+    end)
+    userInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            inputChanged(input)
+        end
+    end)
+end
+
+makeDraggable(frame, titleBar)
+makeDraggable(floatBtn, floatBtn)
+
+function fadeIn(obj, to, time)
+    obj.Visible = true
+    obj.BackgroundTransparency = 1
+    TweenService:Create(obj, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = to or 0}):Play()
+end
+function fadeOut(obj, to, time)
+    TweenService:Create(obj, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = to or 1}):Play()
+    task.wait(time)
+    obj.Visible = false
+end
+
+function fadeInAll(t, time)
+    t.Visible = true
+    for _,v in ipairs(t:GetDescendants()) do
+        if v:IsA("Frame") or v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") then
+            v.BackgroundTransparency = 1
+            TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = v == inputBox and 1 or (v.BackgroundTransparency or 0)}):Play()
+        end
+        if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
+            v.TextTransparency = 1
+            TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {TextTransparency = v == inputBox and 0 or (v.TextTransparency or 0)}):Play()
+        end
+    end
+    TweenService:Create(t, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+end
+
+function fadeOutAll(t, time)
+    for _,v in ipairs(t:GetDescendants()) do
+        if v:IsA("Frame") or v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") then
+            TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+        end
+        if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
+            TweenService:Create(v, TweenInfo.new(time, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
+        end
+    end
+    TweenService:Create(t, TweenInfo.new(time, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+    task.wait(time)
+    t.Visible = false
+end
+
+closeBtn.MouseButton1Click:Connect(function()
+    fadeOutAll(frame, 0.22)
+    fadeOut(floatBtn, 1, 0.25)
+end)
+clearBtn.MouseButton1Click:Connect(function()
+    inputBox.Text = ""
+end)
+execBtn.MouseButton1Click:Connect(function()
+    local code = inputBox.Text
+    print("[Syunpt Executor内]:\n" .. code)
+end)
+miniBtn.MouseButton1Click:Connect(function()
+    fadeOutAll(frame, 0.22)
+    wait(0.24)
+    fadeIn(floatBtn, 0, 0.21)
+end)
+
+-- 悬浮球点击和拖动判定
+local floatingDrag = false
+local lastPos = nil
+floatBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        floatingDrag = true
+        lastPos = input.Position
+    end
+end)
+floatBtn.InputEnded:Connect(function(input)
+    if floatingDrag and lastPos and ((input.Position - lastPos).magnitude < 10) then
+        fadeOut(floatBtn, 1, 0.22)
+        wait(0.22)
+        fadeInAll(frame, 0.21)
+    end
+    floatingDrag = false
+end)
+
+-- 启动时主界面显示，悬浮球隐藏
+fadeInAll(frame, 0.3)
+floatBtn.Visible = false
