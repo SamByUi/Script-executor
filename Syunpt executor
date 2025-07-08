@@ -9,7 +9,7 @@ frame.Size = UDim2.new(0, 390, 0, 255)
 frame.Position = UDim2.new(0.5, -195, 0.45, -130)
 frame.BackgroundColor3 = Color3.fromRGB(0,0,60)
 frame.ClipsDescendants = true
-frame.Visible = false
+frame.Visible = true          -- 启动即显示主窗口
 frame.BackgroundTransparency = 1
 frame.Parent = screenGui
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0,18)
@@ -129,7 +129,7 @@ execBtn.Parent = frame
 Instance.new("UICorner", execBtn).CornerRadius = UDim.new(1,0)
 
 local floatBtn = Instance.new("Frame")
-floatBtn.Visible = false
+floatBtn.Visible = false             -- 启动时不出现！
 floatBtn.Size = UDim2.new(0,55,0,55)
 floatBtn.Position = UDim2.new(0.5, -28, 0.88, 0)
 floatBtn.BackgroundColor3 = Color3.fromRGB(16,16,16)
@@ -211,35 +211,36 @@ function fadeOutAll(t, time)
     end
 end
 
-local uiShown = false
+local uiShown = true
 local showTime = 0.24
 
 local function showMain()
+    if uiShown then return end
     fadeOutAll(floatBtn, 0.16)
     task.wait(0.17)
     floatBtn.Visible = false
-
     frame.Visible = true
     fadeInAll(frame, showTime)
     uiShown = true
 end
 
 local function hideMain()
+    if not uiShown then return end
     fadeOutAll(frame, showTime)
     task.wait(showTime)
     frame.Visible = false
-
     floatBtn.Visible = true
     fadeInAll(floatBtn, 0.22)
     uiShown = false
 end
 
-floatBtn.Visible = true
-fadeInAll(floatBtn, 0.11)
-frame.Visible = false
+---- 初始化，主窗口可见，floatBtn不可见
+frame.Visible = true
+fadeInAll(frame, 0.12)
+floatBtn.Visible = false
 
 floatBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 and not uiShown then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
         showMain()
     end
 end)
@@ -247,7 +248,6 @@ end)
 closeBtn.MouseButton1Click:Connect(function()
     hideMain()
 end)
-
 miniBtn.MouseButton1Click:Connect(function()
     hideMain()
 end)
